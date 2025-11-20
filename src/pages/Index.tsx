@@ -64,7 +64,7 @@ export default function Index() {
   }
 
   if (activeCall) {
-    return <CallScreen contact={activeCall} onEndCall={handleCallEnd} />;
+    return <CallScreen contact={activeCall} userId={String(user.id)} onEndCall={handleCallEnd} />;
   }
 
   return (

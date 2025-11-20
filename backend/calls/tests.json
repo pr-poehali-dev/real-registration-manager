@@ -1,0 +1,31 @@
+{
+  "tests": [
+    {
+      "name": "Start call",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "body": {
+        "action": "start_call",
+        "receiver_id": 2
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "call": {}
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get call history",
+      "method": "GET",
+      "path": "/?action=history",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    }
+  ]
+}

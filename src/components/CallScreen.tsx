@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Badge } from '@/components/ui/badge';
 
+const CALLS_URL = 'https://functions.poehali.dev/f4fb4581-4cb1-4189-8210-16233c16a79e';
+
 interface Contact {
   id: number;
   display_name: string;
@@ -13,22 +15,46 @@ interface Contact {
 
 interface CallScreenProps {
   contact: Contact;
+  userId: string;
   onEndCall: () => void;
 }
 
-export default function CallScreen({ contact, onEndCall }: CallScreenProps) {
+export default function CallScreen({ contact, userId, onEndCall }: CallScreenProps) {
   const [callDuration, setCallDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [callStatus, setCallStatus] = useState<'calling' | 'connected'>('calling');
+  const [callId, setCallId] = useState<number | null>(null);
 
   useEffect(() => {
-    const connectTimer = setTimeout(() => {
-      setCallStatus('connected');
-    }, 2000);
-
-    return () => clearTimeout(connectTimer);
+    startCall();
   }, []);
+
+  const startCall = async () => {
+    try {
+      const response = await fetch(CALLS_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
+        body: JSON.stringify({
+          action: 'start_call',
+          receiver_id: contact.id
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok && data.call) {
+        setCallId(data.call.id);
+        setTimeout(() => {
+          setCallStatus('connected');
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Failed to start call:', error);
+    }
+  };
 
   useEffect(() => {
     if (callStatus === 'connected') {
@@ -102,7 +128,26 @@ export default function CallScreen({ contact, onEndCall }: CallScreenProps) {
           size="lg"
           variant="destructive"
           className="h-20 w-20 rounded-full shadow-2xl hover:scale-110 transition-transform bg-red-500 hover:bg-red-600"
-          onClick={onEndCall}
+          onClick={async () => {
+            if (callId) {
+              try {
+                await fetch(CALLS_URL, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Id': userId
+                  },
+                  body: JSON.stringify({
+                    action: 'end_call',
+                    call_id: callId
+                  })
+                });
+              } catch (error) {
+                console.error('Failed to end call:', error);
+              }
+            }
+            onEndCall();
+          }}
         >
           <Icon name="PhoneOff" size={28} />
         </Button>
