@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "Get friends list",
+      "method": "GET",
+      "path": "/?action=friends",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "friends": []
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Search users",
+      "method": "GET",
+      "path": "/?action=search&q=test",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "results": []
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
